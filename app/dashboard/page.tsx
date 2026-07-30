@@ -1,17 +1,41 @@
 'use client'
 
-import { useSession } from '@/lib/auth-client'
 import { redirect } from 'next/navigation'
 import { Header } from '@/components/header'
 import { Tabs, TabsContent, TabsList, TabsTrigger } from '@/components/ui/tabs'
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@/components/ui/card'
 import { Button } from '@/components/ui/button'
 import { Calendar, BookOpen, FileText, Plus } from 'lucide-react'
-import { useEffect } from 'react'
+import { useEffect, useState } from 'react'
 import Link from 'next/link'
 
 export default function Dashboard() {
-  const { data: session, isPending } = useSession()
+  const [session, setSession] = useState<any>(null)
+  const [isPending, setIsPending] = useState(true)
+
+  useEffect(() => {
+    // Check if user has a session cookie
+    const checkSession = async () => {
+      try {
+        const res = await fetch('/api/auth/session', {
+          method: 'GET',
+          credentials: 'include',
+        })
+        if (res.ok) {
+          const data = await res.json()
+          setSession(data)
+        } else {
+          setSession(null)
+        }
+      } catch (err) {
+        setSession(null)
+      } finally {
+        setIsPending(false)
+      }
+    }
+
+    checkSession()
+  }, [])
 
   useEffect(() => {
     if (!isPending && !session?.user) {

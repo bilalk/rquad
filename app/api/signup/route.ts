@@ -57,7 +57,11 @@ export async function POST(request: Request) {
     )
     return response
   } catch (error) {
-    console.error('[v0] Signup error:', error)
-    return Response.json({ error: String(error) }, { status: 500 })
+    console.error('[v0] Signup error:', error instanceof Error ? error.message : error)
+    const errorMessage = error instanceof Error ? error.message : 'Failed to create account'
+    if (errorMessage.includes('duplicate')) {
+      return Response.json({ error: 'Email already in use' }, { status: 400 })
+    }
+    return Response.json({ error: 'Failed to create account. Please try again.' }, { status: 500 })
   }
 }

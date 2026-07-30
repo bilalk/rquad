@@ -6,6 +6,7 @@ import { resources } from '@/lib/db/schema'
 import { nanoid } from 'nanoid'
 import { headers } from 'next/headers'
 import { revalidatePath } from 'next/cache'
+import { eq } from 'drizzle-orm'
 
 async function getUserId() {
   const session = await auth.api.getSession({ headers: await headers() })
@@ -23,7 +24,7 @@ export async function getResourcesBySubject(subject: string) {
   return db
     .select()
     .from(resources)
-    .where(resources.subject === subject)
+    .where(eq(resources.subject, subject))
     .orderBy(resources.createdAt)
 }
 
@@ -61,7 +62,7 @@ export async function deleteResource(resourceId: string) {
   
   // Check if user is admin (placeholder - implement proper admin check)
   
-  await db.delete(resources).where(resources.id === resourceId)
+  await db.delete(resources).where(eq(resources.id, resourceId))
   
   revalidatePath('/dashboard/resources')
   revalidatePath('/dashboard')

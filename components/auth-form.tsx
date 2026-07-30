@@ -25,30 +25,23 @@ export function AuthForm({ mode }: { mode: 'sign-in' | 'sign-up' }) {
     setLoading(true)
 
     try {
-      if (isSignUp) {
-        const res = await fetch('/api/signup', {
-          method: 'POST',
-          headers: { 'Content-Type': 'application/json' },
-          body: JSON.stringify({ email, password, name }),
-        })
-        const data = await res.json()
-        if (!res.ok) {
-          setError(data.error || 'Signup failed')
-          setLoading(false)
-          return
-        }
-      } else {
-        const res = await fetch('/api/signin', {
-          method: 'POST',
-          headers: { 'Content-Type': 'application/json' },
-          body: JSON.stringify({ email, password }),
-        })
-        const data = await res.json()
-        if (!res.ok) {
-          setError(data.error || 'Signin failed')
-          setLoading(false)
-          return
-        }
+      const endpoint = isSignUp ? '/api/signup' : '/api/signin'
+      const res = await fetch(endpoint, {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify(
+          isSignUp
+            ? { email, password, name }
+            : { email, password }
+        ),
+      })
+
+      const data = await res.json()
+
+      if (!res.ok) {
+        setError(data.error || (isSignUp ? 'Signup failed' : 'Signin failed'))
+        setLoading(false)
+        return
       }
 
       setLoading(false)

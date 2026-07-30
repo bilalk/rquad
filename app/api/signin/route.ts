@@ -13,7 +13,7 @@ export async function POST(request: Request) {
     // Get user
     const userResult = await pool.query('SELECT id FROM "user" WHERE email = $1', [email])
     if (userResult.rows.length === 0) {
-      return Response.json({ error: 'Invalid credentials' }, { status: 401 })
+      return Response.json({ error: 'Invalid email or password' }, { status: 401 })
     }
 
     const userId = userResult.rows[0].id
@@ -25,7 +25,7 @@ export async function POST(request: Request) {
     )
 
     if (credentialResult.rows.length === 0) {
-      return Response.json({ error: 'Invalid credentials' }, { status: 401 })
+      return Response.json({ error: 'Invalid email or password' }, { status: 401 })
     }
 
     // Verify password
@@ -33,7 +33,7 @@ export async function POST(request: Request) {
     const isValid = await bcrypt.compare(password, storedHash)
 
     if (!isValid) {
-      return Response.json({ error: 'Invalid credentials' }, { status: 401 })
+      return Response.json({ error: 'Invalid email or password' }, { status: 401 })
     }
 
     // Create session
