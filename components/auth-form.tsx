@@ -24,19 +24,40 @@ export function AuthForm({ mode }: { mode: 'sign-in' | 'sign-up' }) {
     setError(null)
     setLoading(true)
 
-    const { error } = isSignUp
-      ? await authClient.signUp.email({ email, password, name })
-      : await authClient.signIn.email({ email, password })
+    try {
+      if (isSignUp) {
+        const res = await fetch('/api/signup', {
+          method: 'POST',
+          headers: { 'Content-Type': 'application/json' },
+          body: JSON.stringify({ email, password, name }),
+        })
+        const data = await res.json()
+        if (!res.ok) {
+          setError(data.error || 'Signup failed')
+          setLoading(false)
+          return
+        }
+      } else {
+        const res = await fetch('/api/signin', {
+          method: 'POST',
+          headers: { 'Content-Type': 'application/json' },
+          body: JSON.stringify({ email, password }),
+        })
+        const data = await res.json()
+        if (!res.ok) {
+          setError(data.error || 'Signin failed')
+          setLoading(false)
+          return
+        }
+      }
 
-    setLoading(false)
-
-    if (error) {
-      setError(error.message ?? 'Something went wrong')
-      return
+      setLoading(false)
+      router.push('/dashboard')
+      router.refresh()
+    } catch (err) {
+      setError('An error occurred')
+      setLoading(false)
     }
-
-    router.push('/')
-    router.refresh()
   }
 
   return (
