@@ -33,15 +33,23 @@ const defaultCookieAttributes =
 
 export const auth = betterAuth({
   database: pool,
+  secret: process.env.BETTER_AUTH_SECRET,
   baseURL: defaultBaseUrl,
+  basePath: '/api/auth',
   emailAndPassword: {
     enabled: true,
-    autoSignIn: true,
   },
-  trustedOrigins: defaultTrustedOrigins,
+  trustedOrigins: [
+    // Development local server
+    'http://localhost:3000',
+    'http://localhost',
+    // Allow all origins in development for v0 preview
+    ...(process.env.NODE_ENV === 'development' ? [/.*/ as any] : []),
+    ...defaultTrustedOrigins,
+  ],
   session: {
-    expiresIn: 60 * 60 * 24 * 7, // 7 days
-    updateAge: 60 * 60 * 24, // 1 day
+    expiresIn: 60 * 60 * 24 * 7,
+    updateAge: 60 * 60 * 24,
   },
   advanced: {
     defaultCookieAttributes,
